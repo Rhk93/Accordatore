@@ -57,7 +57,7 @@
 
   <div class="card">
     <div class="corda" id="corda">Suona una corda</div>
-    <svg viewBox="0 24 360 123" id="tastiera"></svg>
+    <svg viewBox="0 22 360 131" id="tastiera"></svg>
   </div>
 </div>
 <footer>Copyright © Ignazio Paolicelli</footer>
@@ -122,17 +122,15 @@ function update(f){
   else{
     smooth=(smooth>0&&Math.abs(f-smooth)/smooth<.03)?smooth*.6+f*.4:f; freq=smooth;
     const n=12*Math.log2(freq/440)+69, nr=Math.round(n);
-    cents=(n-nr)*100;
-    $('nota').textContent=NOMI[((nr%12)+12)%12];
-    $('hz').textContent=`${freq.toFixed(1)} Hz · ${cents>0?'+':''}${cents.toFixed(0)} cent`;
     let b=0;CORDE.forEach((c,i)=>{if(Math.abs(n-c.m)<Math.abs(n-CORDE[b].m))b=i});
-    if(Math.abs(n-CORDE[b].m)<2.5)corda=b;
-    // intonazione rispetto alla corda (se riconosciuta), altrimenti alla nota più vicina
-    const rif=corda>=0?(n-CORDE[corda].m)*100:cents;
+    corda=b;
+    const obj=440*Math.pow(2,(CORDE[b].m-69)/12), rif=(n-CORDE[b].m)*100, fmt=v=>v.toFixed(2).replace('.',',');
+    cents=Math.max(-50,Math.min(50,rif));
+    $('nota').textContent=CORDE[b].n;
+    $('hz').textContent=`${fmt(freq)} Hz · obiettivo ${fmt(obj)} Hz`;
     if(Math.abs(rif)<5)$('msg').innerHTML='<span style="color:var(--ok)">✓ Accordata!</span>';
     else if(rif<0)$('msg').innerHTML=chiave(true)+'<span>Troppo bassa:<br>ruota la chiave verso l\'esterno</span>';
     else $('msg').innerHTML=chiave(false)+'<span>Troppo alta:<br>ruota la chiave verso di te</span>';
-    if(corda>=0)cents=Math.max(-50,Math.min(50,rif));
   }
   const c=colore();
   $('needle').setAttribute('transform',`rotate(${Math.max(-50,Math.min(50,cents))/50*60} ${CX} ${CY})`);
